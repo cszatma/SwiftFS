@@ -36,7 +36,7 @@ public final class FS {
     }
 
     /**
-     Returns the base name of the given path. For example, `"/tmp/scratch.tiff"` would return `"scratch.tiff"`
+     Returns the base name of the given path. For example, `"/tmp/scratch.tiff"` would return `"scratch.tiff"`.
      - parameter path: The path to get the base name from.
      - returns: The base name of the path.
      */
@@ -45,7 +45,7 @@ public final class FS {
     }
 
     /**
-     Returns the directory name of the given path. For example, `"/tmp/scratch.tiff"` would return `"tmp"`
+     Returns the directory name of the given path. For example, `"/tmp/scratch.tiff"` would return `"tmp"`.
      - parameter path: The path to get the directory name from.
      - returns: The directory name of the path.
      */
@@ -56,11 +56,21 @@ public final class FS {
         return components.count == 1 ? components[0] : components[components.count - 2]
     }
 
+    /**
+     Returns the name of a file without the extension. For example, `"/tmp/scratch.tiff"` would return `"scratch"`.
+     - parameter path: The path of the file to get the name of.
+     - returns: The name of the file.
+     */
     public func filename(path: String) -> String {
         let baseName = basename(path: path)
         return (baseName as NSString).deletingPathExtension
     }
 
+    /**
+     Returns the extension of a file. For example,`"/tmp/scratch.tiff"` would return `"tiff"`.
+     - parameter path: The path of the file to get the extension of.
+     - returns: The extension of the file.
+     */
     public func `extension`(path: String) -> String {
         let baseName = basename(path: path)
         return (baseName as NSString).pathExtension
@@ -133,7 +143,7 @@ public final class FS {
             let ext = `extension`(path: oldPath)
             let fileName = filename(path: name)
 
-            name = fileName + ext
+            name = "\(fileName).\(ext)"
         }
 
         try manager.moveItem(atPath: oldPath, toPath: name)
