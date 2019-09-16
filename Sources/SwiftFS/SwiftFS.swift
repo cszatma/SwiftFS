@@ -16,13 +16,13 @@ public final class FS {
         case fileCreationFailed
     }
 
-    private let manager: FileManager
+    private let manager: FSManager
 
     /**
      Cretes a new FS instance.
      - parameter manager: The `FileManager` to use.
      */
-    public init(manager: FileManager) {
+    public init(manager: FSManager) {
         self.manager = manager
     }
 
