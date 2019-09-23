@@ -22,6 +22,22 @@ class FSNode {
         self.contents = contents
     }
 
+    func append(json: [String: Any]) {
+        guard isDir else { fatalError("Cannot append nodes to file") }
+
+        for (name, value) in json {
+            if let strData = value as? String {
+                contents[name] = FSNode.file(name: name, parent: self, data: strData.data(using: .utf8))
+            } else if let children = value as? [String: Any] {
+                let node = FSNode.dir(name: name, parent: self)
+                node.append(json: children)
+                contents[name] = node
+            } else {
+                fatalError("Invalid JSON structure")
+            }
+        }
+    }
+
     func copy(name: String? = nil, parent: FSNode? = nil) -> FSNode {
         guard isDir else {
             return FSNode.file(name: name ?? self.name, parent: parent ?? self.parent, data: data)
@@ -39,7 +55,14 @@ class FSNode {
         return FSNode(name: name, parent: parent, isDir: false, data: data, contents: [:])
     }
 
-    static func dir(name: String, parent: FSNode?, contents: [String: FSNode]) -> FSNode {
+    static func dir(name: String, parent: FSNode, contents: [String: FSNode] = [:]) -> FSNode {
         return FSNode(name: name, parent: parent, isDir: true, data: nil, contents: contents)
+    }
+
+    static func root(contents: [String: FSNode] = [:]) -> FSNode {
+        let node = FSNode(name: "", parent: nil, isDir: true, data: nil, contents: contents)
+        node.parent = node
+
+        return node
     }
 }
