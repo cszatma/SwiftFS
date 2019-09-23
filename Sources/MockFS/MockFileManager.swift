@@ -21,9 +21,20 @@ public class MockFileManager {
     private var cwd: FSNode
 
     public init() {
-        root = FSNode.dir(name: "", parent: nil, contents: [:])
-        root.parent = root
+        root = FSNode.root()
         cwd = root
+    }
+
+    // MARK: - JSON Representation
+
+    public convenience init(json: [String: Any]) {
+        self.init()
+        root.append(json: json)
+    }
+
+    public convenience init(jsonData: Data) {
+        let json = try! JSONSerialization.jsonObject(with: jsonData, options: []) as! [String: Any]
+        self.init(json: json)
     }
 
     public func cd(toPath path: String) throws {
@@ -55,13 +66,14 @@ public class MockFileManager {
     }
 
     // MARK: - Private methods
+
     private func resolveAbsolutePath(fromNode node: FSNode) -> String {
         var path = node.name
-        var currentNode = node
+        var currentNode: FSNode = node.parent
 
         while currentNode !== root {
-            path = "\(node.name)/\(path)"
-            currentNode = node.parent
+            path = "\(currentNode.name)/\(path)"
+            currentNode = currentNode.parent
         }
 
         return "/\(path)"
@@ -123,6 +135,8 @@ public class MockFileManager {
     }
 }
 
+// MARK: - FSManager
+
 extension MockFileManager: FSManager {
     public func fileExists(atPath path: String) -> Bool {
         return fileExists(atPath: path, isDirectory: nil)
@@ -161,7 +175,7 @@ extension MockFileManager: FSManager {
         node.parent.contents[node.name] = nil
     }
 
-    public func createDirectory(atPath path: String, withIntermediateDirectories createIntermediates: Bool, attributes: [FileAttributeKey : Any]?) throws {
+    public func createDirectory(atPath path: String, withIntermediateDirectories createIntermediates: Bool, attributes _: [FileAttributeKey: Any]?) throws {
         if !createIntermediates {
             guard let (parentPath, name) = getDirAndName(fromPath: path) else {
                 throw Error.invalidPath
@@ -174,19 +188,24 @@ extension MockFileManager: FSManager {
         let components = path.components(separatedBy: "/").filter { $0 != "" }
         var currentNode = path.starts(with: "/") ? root : cwd
 
-        for component in components where currentNode.contents[component] == nil {
+        for component in components {
+            if let existingNode = currentNode.contents[component] {
+                currentNode = existingNode
+                continue
+            }
+
             let dirNode = FSNode.dir(name: component, parent: currentNode, contents: [:])
             currentNode.contents[component] = dirNode
             currentNode = dirNode
         }
     }
 
-    public func createFile(atPath path: String, contents data: Data?, attributes attr: [FileAttributeKey : Any]?) -> Bool {
+    public func createFile(atPath path: String, contents data: Data?, attributes _: [FileAttributeKey: Any]?) -> Bool {
         guard let (dirPath, name) = getDirAndName(fromPath: path) else {
             return false
         }
 
-        return (try? addFile(atPath: dirPath, withName: name)) != nil
+        return (try? addFile(atPath: dirPath, withName: name, data: data)) != nil
     }
 
     public func contentsOfDirectory(atPath path: String) throws -> [String] {
@@ -205,7 +224,7 @@ extension MockFileManager: FSManager {
     }
 
     public func contents(atPath path: String) -> Data? {
-        guard let node = try? resolveNode(atPath: path), node.isDir else {
+        guard let node = try? resolveNode(atPath: path), !node.isDir else {
             return nil
         }
 
