@@ -1,7 +1,12 @@
-import XCTest
+import Quick
 
-import SwiftFSTests
+@testable import MockFSTests
+@testable import SwiftFSTests
 
-var tests = [XCTestCaseEntry]()
-tests += SwiftFSTests.allTests()
-XCTMain(tests)
+QCKMain([
+    // MockFS
+    FSNodeTests.self,
+    MockFSTests.self,
+    // SwiftFS
+    SwiftFSTests.self,
+])
