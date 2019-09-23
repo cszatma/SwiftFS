@@ -18,6 +18,8 @@ let package = Package(
         // devDependencies
         .package(url: "https://github.com/Quick/Quick.git", from: "2.1.0"), // dev
         .package(url: "https://github.com/Quick/Nimble.git", from: "8.0.0"), // dev
+        .package(url: "https://github.com/nicklockwood/SwiftFormat.git", from: "0.40.12"), // dev
+        .package(url: "https://github.com/realm/SwiftLint.git", from: "0.35.0"), // dev
     ],
     targets: [
         .target(
