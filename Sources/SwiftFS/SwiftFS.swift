@@ -162,7 +162,7 @@ public final class FS {
      - parameter path: The path at which to create the directory.
      - parameter attributes: A dictionary of attributes to apply to the directory. Defaults to `nil`.
      */
-    public func mkdir(path: String, attributes: [FileAttributeKey : Any]? = nil) throws {
+    public func mkdir(path: String, attributes: [FileAttributeKey: Any]? = nil) throws {
         try manager.createDirectory(atPath: expand(path: path), withIntermediateDirectories: false, attributes: attributes)
     }
 
@@ -171,7 +171,7 @@ public final class FS {
      - parameter path: The path at which to create the directory.
      - parameter attributes: A dictionary of attributes to apply to the directory. Defaults to `nil`.
      */
-    public func mkdirp(path: String, attributes: [FileAttributeKey : Any]? = nil) throws {
+    public func mkdirp(path: String, attributes: [FileAttributeKey: Any]? = nil) throws {
         try manager.createDirectory(atPath: expand(path: path), withIntermediateDirectories: true, attributes: attributes)
     }
 
@@ -183,7 +183,7 @@ public final class FS {
      - parameter attributes: A dictionary of attributes to apply to the file. Defaults to `nil`.
      */
     @discardableResult
-    public func create(path: String, attributes: [FileAttributeKey : Any]? = nil) -> Bool {
+    public func create(path: String, attributes: [FileAttributeKey: Any]? = nil) -> Bool {
         return manager.createFile(atPath: expand(path: path), contents: nil, attributes: attributes)
     }
 
@@ -194,10 +194,10 @@ public final class FS {
      - returns: `true` if the directory already exists, `false` otherwise.
      */
     @discardableResult
-    public func ensureDir(path: String, attributes: [FileAttributeKey : Any]? = nil) throws -> Bool {
+    public func ensureDir(path: String, attributes: [FileAttributeKey: Any]? = nil) throws -> Bool {
         let dir = expand(path: path)
 
-        if (exists(path: dir)) {
+        if exists(path: dir) {
             return true
         }
 
@@ -212,10 +212,10 @@ public final class FS {
      - returns: `true` if the file already exists or was successfully created. `false` if the directory does not exist and was not created.
      */
     @discardableResult
-    public func ensureFile(path: String, attributes: [FileAttributeKey : Any]? = nil) throws -> Bool {
+    public func ensureFile(path: String, attributes: [FileAttributeKey: Any]? = nil) throws -> Bool {
         let file = expand(path: path)
 
-        if (exists(path: file)) {
+        if exists(path: file) {
             return true
         }
 
@@ -280,7 +280,7 @@ public final class FS {
      - parameter type: A type conforming to `Decodable` to parse the JSON as.
      - returns: An instance of the given type.
      */
-    public func readJSON<T: Decodable>(path: String, type: T.Type) throws -> T {
+    public func readJSON<T: Decodable>(path: String, type _: T.Type) throws -> T {
         let data = try readFile(path: path)
         return try JSONDecoder().decode(T.self, from: data)
     }
@@ -290,7 +290,7 @@ public final class FS {
      - parameter path: The path of the file to read.
      - returns: The deserialized JSON.
      */
-    public func readJSON(path: String) throws ->  Any {
+    public func readJSON(path: String) throws -> Any {
         let data = try readFile(path: path)
         return try JSONSerialization.jsonObject(with: data)
     }
